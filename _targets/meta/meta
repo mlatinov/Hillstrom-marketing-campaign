@@ -1,0 +1,6 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
+data_raw|stem|5f596965b0c36d95|2803fbf4be82e2cd|2c530c1562a7fbd1|-644868125||t20484.8519286556s|s461007b|461007|rds|local|vector|||0.153||
+clear_raw|function|dbf3f2408ccd0ac9
+create_dag|function|0d45bec3266e42bc
+marketing_dag|stem|8d08f06766c1f9d3|1eb21b74fdc5a0a1|eee35bab417358eb|929909380||t20484.9143695902s|s182b|182|rds|local|vector|||0.067||
+data_clean|stem|031159b6ff3b4032|efa1f788401bad08|2bf7a525340a7ec0|-1454182835||t20484.9143731461s|s413660b|413660|rds|local|vector|||0.132||
