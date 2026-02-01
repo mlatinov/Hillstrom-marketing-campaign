@@ -29,7 +29,10 @@ list(
     name = eda_marketing,
     command = explore_data(data_clean)
   )
-
+  #### Generative Simulation Model ####
+  #### Bayesian Models Visits Target for ATE estimation ####
+  #### Machine Learning Models for ATE estimation ####
+  #### Predictive Machine Learning Model ####
 
 
 )
