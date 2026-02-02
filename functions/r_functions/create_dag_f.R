@@ -48,7 +48,6 @@ create_dag <- function(){
     gender %-->% visits,
     gender %-->% conversion,
     gender %-->% spending
-
   )
 
   #### Adjustment sets
