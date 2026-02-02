@@ -145,5 +145,3 @@ biv_factor_factor <- function(data , factor_one, factor_two){
   ## Return combined plots
   return(combined)
 }
-
-
