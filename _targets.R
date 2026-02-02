@@ -28,8 +28,13 @@ list(
   tar_target(
     name = eda_marketing,
     command = explore_data(data_clean)
+  ),
+  #### Generative Simulation Model (Validation Monte Carlo)####
+  tar_target(
+    name = generative_model,
+    command = generate_marketing()
   )
-  #### Generative Simulation Model ####
+
   #### Bayesian Models Visits Target for ATE estimation ####
   #### Machine Learning Models for ATE estimation ####
   #### Predictive Machine Learning Model ####
