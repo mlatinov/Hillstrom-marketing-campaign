@@ -1,9 +1,12 @@
 
 #### Function for Generative Model (MC Validation variant) ####
-generate_marketing <- function(){
+generate_marketing <- function(n){
 
   # Set seed
   set.seed(123)
+
+  # Source functions
+  source("functions/simulation_helpers_f.R")
 
   ## Simulate Gender from Bernoulli dist with male edge
   gender <- rbinom(n = n, size = 1, prob = 0.6)
