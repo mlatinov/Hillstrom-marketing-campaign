@@ -6,7 +6,7 @@ create_dag <- function(){
   library(caugi)
 
   #### Causal DAG ####
-  causal_dag <-   caugi(
+  causal_dag <- caugi(
 
     #### Main Causal Chains ####
 
