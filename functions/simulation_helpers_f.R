@@ -33,7 +33,7 @@ simulate_history <- function(
   epsilon <- rexp(n = n, rate = e_hypr_epsilon_rate)
 
   # Mean is calculated by simple linear equation
-  mu <- alpha + beta_newbie * newbie + epsilon
+  mu <- alpha + beta_newbie * newbie_vector + epsilon
 
   ### Gamma Distribution Parameters
 
@@ -76,7 +76,7 @@ simulate_recency <- function(
   # Generate latent scores
   latent_scores <- rnorm(
     n = n,
-    mean = latent_mu + beta_newbie * newbie,
+    mean = latent_mu + beta_newbie * newbie_vector,
     sd = latent_sd
   )
 
@@ -144,7 +144,7 @@ simulate_treatment <- function(
   beta_history <- rnorm(n = n, mean = n_hypr_beta_history_mu, sd = 0.2)
 
   # Baseline prob
-  alpha <- rnorm(n = n, mean = b_alpha_mu, sd = 0.1)
+  alpha <- rnorm(n = n, mean = n_alpha_mu, sd = 0.1)
 
   ## Treatment Comes from Binomial Distribution with size = 1 ##
   p <- plogis(
@@ -219,8 +219,8 @@ simulate_visits <- function(
 
   # Zip Code Effect
   zip_code_effect <- c(
-    Surburban = rnorm(n = 1, mean = n_hypr_zip_Surburban_mu, sd = 0.1),
-    Urban = rnorm(n = 1, mean = n_hypr_zip_Urban_mu , sd = 0.1)
+    Surburban = rnorm(n = 1, mean = n_hypr_beta_zip_Surburban_mu, sd = 0.1),
+    Urban = rnorm(n = 1, mean = n_hypr_beta_zip_Urban_mu , sd = 0.1)
   )
 
   # Zip code matrix
