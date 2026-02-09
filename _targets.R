@@ -32,10 +32,14 @@ list(
   #### Generative Simulation Model (Validation Monte Carlo)####
   tar_target(
     name = generative_model,
-    command = generate_marketing()
+    command = generate_marketing(n = 1000)
+  ),
+  #### Bayesian Models Visits Target for ATE estimation ####
+  tar_target(
+    name = bayes_visit_model,
+    command = bayes_visits()
   )
 
-  #### Bayesian Models Visits Target for ATE estimation ####
   #### Machine Learning Models for ATE estimation ####
   #### Predictive Machine Learning Model ####
 
