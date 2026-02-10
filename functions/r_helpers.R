@@ -145,3 +145,154 @@ biv_factor_factor <- function(data , factor_one, factor_two){
   ## Return combined plots
   return(combined)
 }
+
+#### Function to Prepare data for Bayesian Modeling in Stan  ####
+prepare_stan_data <- function(data){
+
+  ## For Stan the data have to be a named list
+  stan_data <- list(
+    N = nrow(data),
+    Visits = data$visits,
+    Treatment = data$treatment,
+    Newbie = data$newbie,
+    History = data$history,
+    Gender = data$gender,
+    Recency = data$recency,
+    ## Ref encoding for the indicator variables with L > 2
+    Web = if_else(data$channel == "Web",1,0),
+    Phone = if_else(data$channel == "Phone",1,0),
+    Urban = if_else(data$zip_code == "Urban",1,0),
+    Surburban = if_else(data$zip_code == "Surburban",1,0)
+  )
+  # Return a named list
+  return(stan_data)
+}
+
+#### Function to fit a Bayes Model ####
+fit_stan_model <- function(
+    stan_model_path = "stan_scripts/stan_model_visits.stan",
+    data,
+    chains = 4,
+    iter_sampling = 1000,
+    iter_warmup = 1000
+    ){
+
+  #### Libraries ####
+  library(cmdstanr)
+
+  # Compile the model
+  stan_model <- cmdstan_model(stan_file = "stan_scripts/stan_model_visits.stan")
+
+  ## Fit Stan Model ##
+  stan_fit <- stan_model$sample(
+    data = data,
+    seed = 123,
+    chains = chains,
+    iter_sampling = iter_sampling,
+    iter_warmup = iter_warmup
+  )
+
+  # Return the stan fit object
+  return(stan_fit)
+
+}
+
+#### Function to Calc Bias Var and MSE from Bayes draws ####
+bayes_calc_stress <- function(draws,true_effect,sample_size){
+
+  ## Calculate Bias
+  bias <- mean(draws) - true_effect
+
+  ## Calculate Variance
+  variance <- var(draws)
+
+  ## Calculate Bias-Variance Trade-off
+  mse <- (mean(draws) - true_effect)^2 + var(draws)
+
+  ## Combine them in a dataframe and add the sample size for this measures
+  stress_data <- data.frame(
+    bias,
+    variance,
+    mse,
+    sample_size
+  )
+
+  # Return the stress data
+  return(stress_data)
+
+}
+
+#### Function to Aggregate and plot the results from the Monte Carlo Stress Test
+bayes_stress_plots <- function(results){
+
+  ## Libraries
+  library(patchwork)
+
+  ## Global themes
+  theme_set(theme_minimal())
+
+  ## Aggregate the results by their sample sizes
+  aggregated_results <- results_df %>%
+    group_by(sample_size) %>%
+    summarise(
+      mean_bias = mean(bias),
+      mean_variance = mean(variance),
+      mean_mse = mean(mse)
+    )
+
+  ## Plot Bias as a function of Sample Size
+  bias_size <- ggplot(
+    data = aggregated_results, aes(x = sample_size, y = mean_bias))+
+    geom_point()+
+    geom_smooth()+
+    labs(
+      title = "Bias VS Sample Size",
+      x = "Sample Size",
+      y = "Mean Bias"
+    )+
+    theme(
+      title = element_text(size = 15,family = "mono"))
+
+  ## Plot Variance as a function of Sample Size
+  variance_size <- ggplot(
+    data = aggregated_results, aes(x = sample_size, y = mean_variance))+
+    geom_point()+
+    geom_smooth()+
+    labs(
+      title = "Variance VS Sample Size",
+      x = "Sample Size",
+      y = "Mean Variance"
+    )+
+    theme(
+      title = element_text(size = 15,family = "mono"))
+
+  ## Plot Bias Variance Trade-off
+  mse_size <- ggplot(
+    data = aggregated_results, aes(x = sample_size, y = mean_mse))+
+    geom_point()+
+    geom_smooth()+
+    labs(
+      title = "Bias-Variance Trade-Off VS Sample Size",
+      x = "Sample Size",
+      y = "Mean MSE"
+    )+
+    theme(
+      title = element_text(size = 15,family = "mono"))
+
+  ## Combine the Result into one Stress Profile Plot
+  stress_profile <- (bias_size + variance_size) / mse_size
+
+  ## Return the Stress Profile
+  return(stress_profile)
+}
+
+
+
+
+
+
+
+
+
+
+
