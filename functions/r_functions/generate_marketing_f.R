@@ -1,6 +1,9 @@
 
 #### Function for Generative Model (MC Validation variant) ####
-generate_marketing <- function(n){
+generate_marketing <- function(
+    n,
+    treatment_visit_effect = 0.5238
+    ){
 
   # Set seed
   set.seed(123)
@@ -56,7 +59,8 @@ generate_marketing <- function(n){
     history_var = history,
     recency_var = recency,
     gender_var = gender,
-    zip_code_var = zip_code
+    zip_code_var = zip_code,
+    n_hypr_beta_treatment_effect_mu = treatment_visit_effect
   )
 
   ## Simulate Conversion
