@@ -36,12 +36,62 @@ list(
   ),
   #### Bayesian Models Visits Target for ATE estimation ####
   tar_target(
+    name = bayes_visit_model_sim,
+    command = bayes_visits(generative_model)
+  ),
+  tar_target(
     name = bayes_visit_model,
-    command = bayes_visits()
+    command = bayes_visits(data_clean)
+  ),
+  tar_target(
+    name = stress_test_bayes_visits,
+    command = bayes_stress_test(
+      R = 10,
+      iter_sampling = 4000,
+      iter_warmup = 2000,
+      chains = 4,
+      treatment_visit_effect = 0.05,
+      sample_sizes = seq(1000,6000,1000),
+      estimator_path = "stan_scripts/stan_model_visits.stan"
+    )
+  ),
+  tar_target(
+    name = bayes_visit_model_diagnostics,
+    command = bayes_diagnostics(bayes_visit_model)
+  ),
+  tar_target(
+    name = bayes_visit_model_summary,
+    command = bayes_visit_summary(bayes_visit_model)
   )
 
-  #### Machine Learning Models for ATE estimation ####
+  #### Machine Learning Visits Models for ATE estimation ####
+  #### Bayesian Models Conversion Model ####
+  #### Machine Learning Conversion Models ####
+  #### Bayesian Models Spending Model ####
+  #### Machine Learning Spending Models ####
+  #### Update The Generative Simulation Model ####
   #### Predictive Machine Learning Model ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 )
