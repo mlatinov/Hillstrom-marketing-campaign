@@ -24,7 +24,7 @@ clear_raw <- function(data_raw){
       segment == "Mens E-Mail" ~ "men_email"
     ),
     ## Add indicator column Email Vs None
-    treatment_received = if_else(segment == "no_email",0 ,1)
+    treatment = if_else(segment == "no_email",0 ,1)
   ) %>%
     ## Drop the means and womens columns
     select(-mens,-womens) %>%
@@ -34,6 +34,6 @@ clear_raw <- function(data_raw){
     ) %>%
     ## Change the indicator variables to factors
     mutate(
-      across(c("newbie","visit","conversion","treatment_received"),as.factor)
+      across(c("newbie","visit","conversion","treatment"),as.factor)
     )
 }
