@@ -13,6 +13,9 @@ bayes_stress_test <- function(
   ### Libraries ####
   library(posterior)
 
+  ### Source Functions ###
+  source("functions/r_helpers.R")
+
   ## Collect the Results
   results <- list()
   row_id <- 1
