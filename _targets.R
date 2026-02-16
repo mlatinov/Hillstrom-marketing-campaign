@@ -29,24 +29,11 @@ list(
     name = eda_marketing,
     command = explore_data(data_clean)
   ),
-  #### Generative Simulation Model (Validation Monte Carlo)####
-  tar_target(
-    name = generative_model,
-    command = generate_marketing(n = 1000)
-  ),
-  #### Bayesian Models Visits Target for ATE estimation ####
-  tar_target(
-    name = bayes_visit_model_sim,
-    command = bayes_visits(generative_model)
-  ),
-  tar_target(
-    name = bayes_visit_model,
-    command = bayes_visits(data_clean)
-  ),
+  #### Validation Monte Carlo Bias Estimation ####
   tar_target(
     name = stress_test_bayes_visits,
     command = bayes_stress_test(
-      R = 10,
+      R = 3,
       iter_sampling = 4000,
       iter_warmup = 2000,
       chains = 4,
@@ -54,6 +41,12 @@ list(
       sample_sizes = seq(1000,6000,1000),
       estimator_path = "stan_scripts/stan_model_visits.stan"
     )
+  ),
+  tar_target(
+    name = bayes_visit_model,
+    command = bayes_visits(sample_n(data_clean,size = 1000)),
+    memory = "transient",
+    format = "rds"
   ),
   tar_target(
     name = bayes_visit_model_diagnostics,
