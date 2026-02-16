@@ -1,6 +1,6 @@
 
-#### Function to call Stan visit model return the aggrerated results ####
-bayes_visits <- function(data){
+#### Function to call Stan visit model return the aggregated results ####
+bayes_visits <- function(data,chains,iter_sampling,iter_warmup){
 
   ## Libraries
   library(cmdstanr)
@@ -10,19 +10,18 @@ bayes_visits <- function(data){
 
   ## Prepare Data for Stan model ##
   stan_data <- list(
-    N = nrow(generative_model),
-    Visits = generative_model$visits,
-    Treatment = generative_model$treatment,
-    Newbie = generative_model$newbie,
-    History = generative_model$history,
-    Gender = generative_model$gender,
-    Recency = generative_model$recency,
-    Web = if_else(generative_model$channel == "Web",1,0),
-    Phone = if_else(generative_model$channel == "Phone",1,0),
-    Urban = if_else(generative_model$zip_code == "Urban",1,0),
-    Surburban = if_else(generative_model$zip_code == "Surburban",1,0)
+    N = nrow(data),
+    Visits = as.numeric(as.character(data$visit)),
+    Treatment = data$treatment,
+    Newbie = data$newbie,
+    History = data$history,
+    Gender = data$gender,
+    Recency = data$recency,
+    Web = if_else(data$channel == "Web",1,0),
+    Phone = if_else(data$channel == "Phone",1,0),
+    Urban = if_else(data$zip_code == "Urban",1,0),
+    Surburban = if_else(data$zip_code == "Surburban",1,0)
   )
-
   ## Fit Stan Model ##
   stan_fit <- stan_model$sample(
     data = stan_data,
@@ -32,14 +31,9 @@ bayes_visits <- function(data){
     iter_warmup = 1000
   )
 
-  summary <- stan_fit$summary()
+  ## Save the model
+  stan_fit$save_object("models/bayes_models/visit_model.rds")
 
-
-
-
-
-
-
-
-
+  ## Return the model
+  return(stan_fit)
 }
