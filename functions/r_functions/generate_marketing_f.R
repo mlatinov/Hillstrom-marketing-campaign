@@ -51,7 +51,7 @@ generate_marketing <- function(
   )
 
   ## Simulate Visits
-  visits <- simulate_visits(
+  visit <- simulate_visits(
     n = n,
     treatment_var = treatment,
     channel_var = channel,
@@ -66,7 +66,7 @@ generate_marketing <- function(
   ## Simulate Conversion
   conversion <- simulate_conversion(
     n = n,
-    visits_var = visits,
+    visits_var = visit,
     zip_code_var = zip_code,
     recency_var = recency,
     channel_var = channel,
@@ -76,7 +76,7 @@ generate_marketing <- function(
   )
 
   ## Simulate Spending
-  spending <- simulate_spending(
+  spend <- simulate_spending(
     n = n,
     channel_var = channel,
     conversion_var = conversion,
@@ -95,9 +95,9 @@ generate_marketing <- function(
     history,
     recency,
     treatment,
-    visits,
+    visit,
     conversion,
-    spending
+    spend
   )
 
   # Return the simulated data
