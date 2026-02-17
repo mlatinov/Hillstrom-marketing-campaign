@@ -50,11 +50,20 @@ list(
   ),
   tar_target(
     name = bayes_visit_model_diagnostics,
-    command = bayes_diagnostics(bayes_visit_model)
+    command = bayes_diagnostics(
+      y_obs = sample(as.numeric(as.character(data_clean$visit)),1000),
+      stan_model = bayes_visit_model,
+      output_dir = "_results/diagnostics/bayes_models/visits_model"
+    ),
+    memory = "transient"
   ),
   tar_target(
     name = bayes_visit_model_summary,
-    command = bayes_visit_summary(bayes_visit_model)
+    command = bayes_visit_summary(
+      output_dir = "_results/insights/bayes_models/visits_model",
+      draws = as_draws(bayes_visit_model)
+      ),
+    memory = "transient"
   )
 
   #### Machine Learning Visits Models for ATE estimation ####
