@@ -286,6 +286,30 @@ bayes_stress_plots <- function(results){
   return(stress_profile)
 }
 
+#### Function to plot posterior distributions and save them in dir ####
+plot_posterior <- function(
+    output_dir,
+    plot_name,
+    draws,
+    pars
+  ){
+
+  # Libraries
+  library(bayesplot)
+  library(posterior)
+
+  # Plot Posterior Dens Overlay
+  plot <- mcmc_dens_overlay(draws,pars)+
+    theme_minimal()
+
+  # Save the plot and remove it from the env
+  plot_posterior_path <- file.path(output_dir, plot_name)
+  ggsave(plot_posterior_path, plot, width = 6, height = 4)
+  rm(plot)
+
+  # Return the path to the plot
+  return(plot_posterior_path)
+}
 
 
 
