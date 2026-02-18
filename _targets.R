@@ -64,9 +64,18 @@ list(
       draws = as_draws(bayes_visit_model)
       ),
     memory = "transient"
+  ),
+  #### Machine Learning Visits Models for ATE estimation ####
+  tar_target(
+    name = t_learner_visit_model,
+    command = t_learner_model(
+      data = sample_n(data_clean,size = 500),
+      output_dir_insights = "_results/insights/Causal_ML/visits_model/T_learner",
+      output_dir_diagnostics = "_results/diagnostics/Causal_ML/visits_model/T_learner"
+      ),
+    memory = "transient"
   )
 
-  #### Machine Learning Visits Models for ATE estimation ####
   #### Bayesian Models Conversion Model ####
   #### Machine Learning Conversion Models ####
   #### Bayesian Models Spending Model ####
