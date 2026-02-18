@@ -177,7 +177,7 @@ fit_stan_model <- function(
     iter_warmup = 1000
     ){
 
-  #### Libraries ####
+  ## Libraries ##
   library(cmdstanr)
 
   # Compile the model
@@ -311,7 +311,141 @@ plot_posterior <- function(
   return(plot_posterior_path)
 }
 
+#### Function to prep data for Causal ML Modeling ####
+prep_causal_ml_df <- function(data){
 
+  # Create a train and test splits
+  split <- initial_split(data = data, prop = 0.8)
+  train_df <- training(split)
+  testing_df <- testing(split)
+
+  # Filter the data to create control and treatment train and test sets
+  control_df_train <- train_df[train_df[["treatment"]] == 0,]
+  control_df_test <- testing_df[testing_df[["treatment"]] == 0,]
+
+  treatment_df_train <- train_df[train_df[["treatment"]] == 1,]
+  treatment_df_test <- testing_df[testing_df[["treatment"]] == 1,]
+
+  # Return a list with the datasets
+  return(list(
+    control = list(
+      training_df = control_df_train,
+      testing_df = control_df_test
+    ),
+    treatment = list(
+      training_df = treatment_df_train,
+      testing_df = treatment_df_test
+    )
+  ))
+}
+#### Function for Causal ML Recipes for Visit Model ####
+causal_ml_recipes_visit <- function(control_train_df,treatment_train_df){
+
+  # Control recipe
+  control_recipe <- recipe(visit ~ . , data = control_train_df) %>%
+
+    # Remove Variables
+    step_rm(
+      removals = c("history_segment","conversion","spend","segment")
+    ) %>%
+
+    # Normalize History
+    step_normalize(history) %>%
+
+    # Encode the Categorical variables
+    step_dummy(all_nominal_predictors())
+
+  # Treatment Recipe
+  treatment_recipe <- recipe(visit ~ . , data = treatment_train_df) %>%
+
+    # Remove Variables
+    step_rm(
+      removals = c("history_segment","conversion","spend","segment")
+    ) %>%
+
+    # Normalize History
+    step_normalize(history) %>%
+
+    # Encode the Categorical variables
+    step_dummy(all_nominal_predictors())
+
+  # Return the recipes
+  return(list(
+    control_recipe = control_recipe,
+    treatment_recipe = treatment_recipe
+  ))
+}
+
+#### Function to perform Tune Race Anova Tuning ####
+causal_ml_aov_tune <- function(
+    parameters,
+    workflow,
+    resamples
+  ){
+
+  # Define control for ANOVA race
+  aov_control <- finetune::control_race(
+    burn_in = 3,
+    save_workflow = TRUE,
+    save_pred = TRUE,
+    verbose = FALSE
+  )
+
+  # Set metric
+  metric <- metric_set(roc_auc)
+
+  # Search Parameter Grid LHC
+  lhc_grid <- grid_space_filling(parameters, size = 40)
+
+  # Perform the Tuning
+  tune_race <- finetune::tune_race_anova(
+    object = workflow,
+    resamples = resamples,
+    grid = lhc_grid,
+    metrics = metric,
+    control = aov_control
+  )
+
+  # Extract and the return the top performance
+  performance_cv <- collect_metrics(tune_race)
+
+  best_model_params <- tune_race %>%
+    show_best(n = 1) %>%
+    select(-.metric, -.estimator, -mean, -n, -std_err, -.config)
+
+  return(list(
+    performance = performance_cv,
+    best_params = best_model_params
+  ))
+}
+
+#### Function to Calc Causal Estimands ####
+calc_causal_estimands <- function(y_hat_1,y_hat_0){
+
+  ## Average Treatment Effect
+  ATE = mean(y_hat_1 - y_hat_0)
+
+  ## Risk Ratio
+  RR = mean(y_hat_1) / mean(y_hat_0)
+
+  ## Odds Ratio
+  OR = (mean(y_hat_1)/(1-mean(y_hat_1))) / (mean(y_hat_0)/(1-mean(y_hat_0)))
+
+  ## Number Needed to Treat
+  NNT = 1/ATE
+
+  # Bind rows and return one df
+  causal_estimands <- bind_rows(
+    Average_Treatment_Effect = ATE,
+    Risk_Ratio = RR,
+    Odds_Ratio = OR,
+    Numbers_Needed_to_Treat = NNT
+  )
+
+  # Return the causal_estimands
+  return(causal_estimands)
+
+}
 
 
 
