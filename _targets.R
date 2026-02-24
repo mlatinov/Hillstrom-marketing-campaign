@@ -74,8 +74,16 @@ list(
       output_dir_diagnostics = "_results/diagnostics/Causal_ML/visits_model/T_learner"
       ),
     memory = "transient"
+  ),
+  tar_target(
+    name = dr_learner_visit_model,
+    command = dr_learner_model(
+      data = sample_n(data_clean,size = 500),
+      output_dir_insights = "_results/insights/Causal_ML/visits_model/DR_learner",
+      output_dir_diagnostics = "_results/diagnostics/Causal_ML/visits_model/DR_learner"
+    ),
+    memory = "transient"
   )
-
   #### Bayesian Models Conversion Model ####
   #### Machine Learning Conversion Models ####
   #### Bayesian Models Spending Model ####
