@@ -447,6 +447,75 @@ calc_causal_estimands <- function(y_hat_1,y_hat_0){
 
 }
 
+#### Function to Estemate Propensity Scores ####
+estemate_propensity <- function(data){
+
+  ## Libraries
+  library(tidymodels)
+
+  ## Fit a glm model to the data
+  ps_model <- logistic_reg() %>%
+    set_mode("classification") %>%
+    set_engine("glm")
+
+  ## Create a recipe for the PS model
+  ps_recipe <- recipe(visit ~. ,data = data) %>%
+    # Remove Variables
+    step_rm(
+      removals = c("history_segment","conversion","spend","segment")
+    ) %>%
+
+    # Normalize History
+    step_normalize(history) %>%
+
+    # Encode the Categorical variables
+    step_dummy(all_nominal_predictors())
+
+  ## Create a Workflow
+  ps_workflow <- workflow() %>%
+    add_model(ps_model) %>%
+    add_recipe(ps_recipe)
+
+  ## Fit and predict
+  ps_fit <- fit(ps_workflow , data = data)
+  e_hat <- predict(ps_fit , new_data = data, type = "prob")$.pred_1
+
+  # Return ehat
+  return(e_hat)
+}
+
+#### Function to Fit a DR CATE model ####
+cate_model <- function(data){
+
+  ## CATE Model Spec
+  cate_model <- rand_forest() %>%
+    set_mode("regression") %>%
+    set_engine("ranger")
+
+  ## CATE Workflow
+  recipe <- recipe(phi ~ ., data = data) %>%
+    # Ignore the outcome and the treatment indicator
+    update_role(visit, treatment, new_role = "ignore") %>%
+    # Remove Variables
+    step_rm(
+      removals = c("history_segment","conversion","spend","segment")
+    ) %>%
+    # Normalize History
+    step_normalize(history) %>%
+
+    # Encode the Categorical variables
+    step_dummy(all_nominal_predictors())
+
+  wf_cate <- workflow() %>%
+    add_model(cate_model) %>%
+    add_recipe(recipe)
+
+  # Fit the workflow
+  fit_cate <- fit(wf_cate, data = data)
+
+  # Return the CATE model
+  return(fit_cate)
+}
 
 
 
